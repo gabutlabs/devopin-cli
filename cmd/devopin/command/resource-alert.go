@@ -1,9 +1,13 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"gabutlabs/devopin-cli/internal/config"
 	"gabutlabs/devopin-cli/internal/resource_alert"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -18,6 +22,12 @@ var resourceAlertCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(err)
 		}
-		resource_alert.RunResourceAlertRunner(cfg)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go resource_alert.RunResourceAlertRunner(ctx, cfg)
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		fmt.Println("Shutting down resource alert command...")
 	},
 }
