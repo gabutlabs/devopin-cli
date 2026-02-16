@@ -1,0 +1,64 @@
+# Devopin CLI Configuration
+# =========================
+# 
+# This is an example configuration file for Devopin CLI.
+# Copy this file to /etc/devopin/config.yaml (production) or 
+# keep it in the project root as config.yaml (development).
+#
+# Environment variables can also be used instead of this file.
+# All environment variables must be prefixed with DEVOPIN_
+# Example: DEVOPIN_TELEGRAM_BOT_TOKEN, DEVOPIN_RESOURCE_ALERT_INTERVAL
+
+# =============================================================================
+# Resource Alert Settings
+# =============================================================================
+resource_alert:
+  # How often to check resource usage (supports: s, m, h)
+  interval: 30s
+  
+  # Memory alert threshold
+  memory:
+    max_percent: 90  # Alert when memory usage exceeds 90%
+  
+  # CPU alert threshold
+  cpu:
+    max_percent: 90  # Alert when CPU usage exceeds 90%
+  
+  # Disk alert threshold
+  disk:
+    max_percent: 90  # Alert when disk usage exceeds 90%
+
+# =============================================================================
+# Notification Settings
+# =============================================================================
+notify:
+  telegram:
+    # Get your bot token from @BotFather on Telegram
+    # Example: "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+    bot_token: ""
+    
+    # Get your chat ID from @userinfobot on Telegram
+    # Example: 123456789
+    chat_id: 0
+
+# =============================================================================
+# Server Settings
+# =============================================================================
+server:
+  # Hostname to report in alerts (leave empty to auto-detect)
+  host: ""
+
+# =============================================================================
+# Environment Variable Equivalents
+# =============================================================================
+# Instead of using this config file, you can use environment variables:
+#
+# DEVOPIN_RESOURCE_ALERT_INTERVAL=30s
+# DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT=90
+# DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT=90
+# DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT=90
+# DEVOPIN_TELEGRAM_BOT_TOKEN=your_bot_token
+# DEVOPIN_TELEGRAM_CHAT_ID=your_chat_id
+# DEVOPIN_SERVER_HOST=your_hostname
+#
+# Environment variables take precedence over config file values.

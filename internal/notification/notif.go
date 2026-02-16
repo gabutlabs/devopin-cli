@@ -30,6 +30,7 @@ func (n *Notification) FormatResourceAlertMessage(hostName string, resource stri
 			"Usage  : <code>%.2f%%</code>\n"+
 			"Limit  : <code>%d%%</code>\n"+
 			"Time   : <code>%s</code>\n",
+
 		resource,
 		strings.ToUpper(hostName),
 		value,

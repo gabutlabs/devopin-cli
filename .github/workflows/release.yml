@@ -1,0 +1,126 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          # Exclude darwin/arm64 if not needed (older macOS)
+          - goos: darwin
+            goarch: arm64
+        include:
+          - goos: linux
+            goarch: arm
+            goarm: 7
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          GOARM: ${{ matrix.goarm }}
+        run: |
+          # Set binary name
+          BINARY_NAME="devopin"
+          
+          # Build with ldflags for smaller binary and version info
+          LDFLAGS="-s -w -X main.Version=${GITHUB_REF#refs/tags/}"
+          
+          # Create output directory
+          mkdir -p dist/${{ matrix.goos }}_${{ matrix.goarch }}
+          
+          # Build
+          CGO_ENABLED=0 go build \
+            -ldflags "${LDFLAGS}" \
+            -trimpath \
+            -o dist/${{ matrix.goos }}_${{ matrix.goarch }}/${BINARY_NAME} \
+            ./cmd/devopin
+      
+      - name: Create tarball
+        run: |
+          BINARY_NAME="devopin"
+          VERSION="${GITHUB_REF#refs/tags/}"
+          OS="${{ matrix.goos }}"
+          ARCH="${{ matrix.goarch }}"
+          
+          # Create tarball directory
+          mkdir -p release
+          
+          # Copy binary and assets
+          cp dist/${OS}_${ARCH}/${BINARY_NAME} release/
+          cp LICENSE release/ 2>/dev/null || true
+          cp README.md release/
+          
+          # Create tarball
+          cd release
+          tar -czvf ../${BINARY_NAME}_${VERSION}_${OS}_${ARCH}.tar.gz *
+          cd ..
+          
+          # Generate SHA256 checksum
+          sha256sum ${BINARY_NAME}_${VERSION}_${OS}_${ARCH}.tar.gz > ${BINARY_NAME}_${VERSION}_${OS}_${ARCH}.tar.gz.sha256
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: devopin-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            *.tar.gz
+            *.sha256
+          retention-days: 1
+  
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/**/*.tar.gz
+            artifacts/**/*.sha256
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  publish-registry:
+    name: Publish to Go Registry (optional)
+    needs: build
+    runs-on: ubuntu-latest
+    if: false  # Set to true if you want to publish to proxy.golang.org
+    steps:
+      - name: Trigger Go Proxy
+        run: |
+          curl https://proxy.golang.org/gabutlabs/devopin-cli/@v/${GITHUB_REF#refs/tags/}.info

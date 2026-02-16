@@ -1,1 +1,45 @@
+# Config files
 config.yaml
+config.yaml.bak
+
+# Build artifacts
+dist/
+release/
+build/
+*.tar.gz
+*.sha256
+
+# Binary files
+/devopin
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output from go test
+*.out
+
+# Coverage
+coverage.txt
+*.cover
+*.coverprofile
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.dev
