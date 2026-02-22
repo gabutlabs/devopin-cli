@@ -12,14 +12,14 @@ A command-line application for monitoring system resources (CPU, Memory, Disk) a
 - 📱 **Telegram Alerts**: Get instant notifications when resource usage exceeds thresholds
 - ⚙️ **Configurable**: Customizable thresholds and check intervals
 - 🔧 **Systemd Integration**: Run as a background service on Linux
-- 🌐 **Cross-Platform**: Supports Linux (AMD64, ARM64, ARMv7) and macOS
+- 🌐 **Cross-Platform**: Supports Linux (AMD64, ARM64, ARMv7)
 
 ## Quick Install
 
 ### One-Liner Installation
 
 ```bash
-# Install latest version (Linux/macOS)
+# Install latest version (Linux)
 curl -fsSL https://github.com/gabutlabs/devopin-cli/releases/latest/download/install.sh | sudo bash
 ```
 
@@ -27,12 +27,6 @@ curl -fsSL https://github.com/gabutlabs/devopin-cli/releases/latest/download/ins
 
 ```bash
 curl -fsSL https://github.com/gabutlabs/devopin-cli/releases/download/v1.0.0/install.sh | sudo bash -s -- --version v1.0.0
-```
-
-### Using Homebrew (macOS)
-
-```bash
-# Coming soon
 ```
 
 For detailed installation instructions, see [INSTALL.md](INSTALL.md).
@@ -50,10 +44,25 @@ sudo systemctl start devopin-resource-alert
 sudo systemctl enable devopin-resource-alert  # Auto-start on boot
 ```
 
+### Monitor Worker
+
+```bash
+# Run manually
+devopin monitor-worker
+
+# Run as systemd service (Linux)
+sudo systemctl start devopin-monitor-worker
+sudo systemctl enable devopin-monitor-worker  # Auto-start on boot
+```
+
 ### Check Service Status
 
 ```bash
+# Check resource-alert service
 sudo systemctl status devopin-resource-alert
+
+# Check monitor-worker service
+sudo systemctl status devopin-monitor-worker
 ```
 
 ### View Logs
@@ -61,9 +70,11 @@ sudo systemctl status devopin-resource-alert
 ```bash
 # Follow logs in real-time
 sudo journalctl -u devopin-resource-alert -f
+sudo journalctl -u devopin-monitor-worker -f
 
 # View last 50 lines
 sudo journalctl -u devopin-resource-alert -n 50
+sudo journalctl -u devopin-monitor-worker -n 50
 ```
 
 ## Configuration
@@ -200,6 +211,8 @@ devopin --help
 
 ## Systemd Service Commands
 
+### Resource Alert Service
+
 ```bash
 # Start service
 sudo systemctl start devopin-resource-alert
@@ -223,6 +236,31 @@ sudo systemctl status devopin-resource-alert
 sudo journalctl -u devopin-resource-alert -f
 ```
 
+### Monitor Worker Service
+
+```bash
+# Start service
+sudo systemctl start devopin-monitor-worker
+
+# Stop service
+sudo systemctl stop devopin-monitor-worker
+
+# Restart service
+sudo systemctl restart devopin-monitor-worker
+
+# Enable auto-start
+sudo systemctl enable devopin-monitor-worker
+
+# Disable auto-start
+sudo systemctl disable devopin-monitor-worker
+
+# Check status
+sudo systemctl status devopin-monitor-worker
+
+# View logs
+sudo journalctl -u devopin-monitor-worker -f
+```
+
 ## Uninstall
 
 ```bash
@@ -230,11 +268,20 @@ sudo journalctl -u devopin-resource-alert -f
 sudo devopin uninstall
 
 # Or manually
-sudo systemctl stop devopin-resource-alert
-sudo systemctl disable devopin-resource-alert
+# Stop and disable services
+sudo systemctl stop devopin-resource-alert devopin-monitor-worker
+sudo systemctl disable devopin-resource-alert devopin-monitor-worker
+
+# Remove service files
 sudo rm /etc/systemd/system/devopin-resource-alert.service
+sudo rm /etc/systemd/system/devopin-monitor-worker.service
+
+# Remove binary and config
 sudo rm /usr/local/bin/devopin
 sudo rm -rf /etc/devopin
+
+# Reload systemd
+sudo systemctl daemon-reload
 ```
 
 ## Building from Source

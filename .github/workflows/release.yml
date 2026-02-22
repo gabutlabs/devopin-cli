@@ -16,12 +16,8 @@ jobs:
     
     strategy:
       matrix:
-        goos: [linux, darwin]
+        goos: [linux]
         goarch: [amd64, arm64]
-        exclude:
-          # Exclude darwin/arm64 if not needed (older macOS)
-          - goos: darwin
-            goarch: arm64
         include:
           - goos: linux
             goarch: arm

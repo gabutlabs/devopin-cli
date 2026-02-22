@@ -160,13 +160,8 @@ check_system() {
         linux)
             OS="linux"
             ;;
-        darwin)
-            OS="darwin"
-            log_warning "macOS detected. systemd service will not be installed."
-            SKIP_SERVICE=true
-            ;;
         *)
-            die "Unsupported operating system: $OS"
+            die "Unsupported operating system: $OS. This installer only supports Linux."
             ;;
     esac
 
@@ -337,10 +332,10 @@ setup_systemd_service() {
         return
     fi
 
-    log_info "Setting up systemd service..."
+    log_info "Setting up systemd services..."
 
-    # Create service file
-    cat > "${SYSTEMD_DIR}/${SERVICE_NAME}.service" << EOF
+    # Create resource-alert service file
+    cat > "${SYSTEMD_DIR}/${SERVICE_NAME_RESOURCE}.service" << EOF
 [Unit]
 Description=Devopin CLI Resource Alert Monitor
 Documentation=https://github.com/${GITHUB_REPO}
@@ -354,7 +349,7 @@ Restart=on-failure
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=${SERVICE_NAME}
+SyslogIdentifier=${SERVICE_NAME_RESOURCE}
 
 # Security hardening
 NoNewPrivileges=true
@@ -370,19 +365,59 @@ Environment=PATH=/usr/local/bin:/usr/bin:/bin
 WantedBy=multi-user.target
 EOF
 
-    chmod 644 "${SYSTEMD_DIR}/${SERVICE_NAME}.service"
+    chmod 644 "${SYSTEMD_DIR}/${SERVICE_NAME_RESOURCE}.service"
+
+    # Create monitor-worker service file
+    cat > "${SYSTEMD_DIR}/${SERVICE_NAME_WORKER}.service" << EOF
+[Unit]
+Description=Devopin CLI Worker Monitor
+Documentation=https://github.com/${GITHUB_REPO}
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=${INSTALL_DIR}/${BINARY_NAME} monitor-worker
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=${SERVICE_NAME_WORKER}
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/devopin
+PrivateTmp=true
+
+# Environment
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    chmod 644 "${SYSTEMD_DIR}/${SERVICE_NAME_WORKER}.service"
 
     # Reload systemd daemon
     log_info "Reloading systemd daemon..."
     systemctl daemon-reload
 
-    # Enable service (but don't start yet)
-    log_info "Enabling ${SERVICE_NAME} service..."
-    systemctl enable "${SERVICE_NAME}"
+    # Enable services
+    log_info "Enabling ${SERVICE_NAME_RESOURCE} service..."
+    systemctl enable "${SERVICE_NAME_RESOURCE}"
 
-    log_success "Systemd service installed and enabled!"
-    log_info "Start the service with: sudo systemctl start ${SERVICE_NAME}"
-    log_info "Check status with: sudo systemctl status ${SERVICE_NAME}"
+    log_info "Enabling ${SERVICE_NAME_WORKER} service..."
+    systemctl enable "${SERVICE_NAME_WORKER}"
+
+    log_success "Systemd services installed and enabled!"
+    log_info "Start services with:"
+    log_info "  sudo systemctl start ${SERVICE_NAME_RESOURCE}"
+    log_info "  sudo systemctl start ${SERVICE_NAME_WORKER}"
+    log_info "Check status with:"
+    log_info "  sudo systemctl status ${SERVICE_NAME_RESOURCE}"
+    log_info "  sudo systemctl status ${SERVICE_NAME_WORKER}"
 }
 
 # =============================================================================
@@ -404,26 +439,34 @@ print_post_install_message() {
     echo ""
     if [[ "$SKIP_SERVICE" != true ]] && [[ "$OS" == "linux" ]]; then
         echo "  2. Start the resource-alert service:"
-        echo "     sudo systemctl start ${SERVICE_NAME}"
+        echo "     sudo systemctl start ${SERVICE_NAME_RESOURCE}"
         echo ""
-        echo "  3. Check service status:"
-        echo "     sudo systemctl status ${SERVICE_NAME}"
+        echo "  3. Start the monitor-worker service:"
+        echo "     sudo systemctl start ${SERVICE_NAME_WORKER}"
         echo ""
-        echo "  4. Enable auto-start on boot (if not already):"
-        echo "     sudo systemctl enable ${SERVICE_NAME}"
+        echo "  4. Check service status:"
+        echo "     sudo systemctl status ${SERVICE_NAME_RESOURCE}"
+        echo "     sudo systemctl status ${SERVICE_NAME_WORKER}"
         echo ""
-        echo "  5. View logs:"
-        echo "     sudo journalctl -u ${SERVICE_NAME} -f"
+        echo "  5. Enable auto-start on boot (if not already):"
+        echo "     sudo systemctl enable ${SERVICE_NAME_RESOURCE}"
+        echo "     sudo systemctl enable ${SERVICE_NAME_WORKER}"
+        echo ""
+        echo "  6. View logs:"
+        echo "     sudo journalctl -u ${SERVICE_NAME_RESOURCE} -f"
+        echo "     sudo journalctl -u ${SERVICE_NAME_WORKER} -f"
     else
         echo "  2. Run manually:"
         echo "     ${BINARY_NAME} resource-alert"
+        echo "     ${BINARY_NAME} monitor-worker"
     fi
     echo ""
     echo "Uninstall:"
     echo "  sudo ${INSTALL_DIR}/${BINARY_NAME} uninstall"
     echo "  OR manually remove:"
     echo "    sudo rm ${INSTALL_DIR}/${BINARY_NAME}"
-    echo "    sudo rm ${SYSTEMD_DIR}/${SERVICE_NAME}.service"
+    echo "    sudo rm ${SYSTEMD_DIR}/${SERVICE_NAME_RESOURCE}.service"
+    echo "    sudo rm ${SYSTEMD_DIR}/${SERVICE_NAME_WORKER}.service"
     echo "    sudo rm -rf ${CONFIG_DIR}"
     echo ""
     echo "=============================================="
