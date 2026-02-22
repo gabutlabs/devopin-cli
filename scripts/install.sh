@@ -293,7 +293,7 @@ setup_config() {
 
 # Resource Alert Settings
 resource_alert:
-  interval: 30s  # Check interval
+  interval: 1m  # Check interval (minutes only, e.g., 1m, 5m, 10m)
   memory:
     max_percent: 90  # Alert when memory usage exceeds this percentage
   cpu:
@@ -310,6 +310,13 @@ notify:
 # Server Settings
 server:
   host: ""  # Leave empty to auto-detect hostname
+
+# Monitor Worker Settings
+monitor_worker:
+  interval: 1m  # Check interval (minutes only, e.g., 1m, 5m, 10m)
+  exclude_workers:
+    - ua-auto-attach
+    - syslog
 EOF
 
     chmod 644 "$config_file"

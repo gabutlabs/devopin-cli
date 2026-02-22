@@ -20,10 +20,10 @@
 # Controls system resource monitoring and alerting behavior
 resource_alert:
   # How often to check resource usage
-  # Supported units: s (seconds), m (minutes), h (hours)
-  # Default: 1 (second)
+  # Supported units: m (minutes), h (hours)
+  # Default: 1m
   # Environment: DEVOPIN_RESOURCE_ALERT_INTERVAL
-  interval: 30s
+  interval: 1m
 
   # Memory alert threshold
   memory:
@@ -86,10 +86,10 @@ server:
 # Controls worker monitoring behavior
 monitor_worker:
   # How often to check worker status
-  # Supported units: s (seconds), m (minutes), h (hours)
-  # Default: 1 (second)
+  # Supported units: m (minutes), h (hours)
+  # Default: 1m
   # Environment: DEVOPIN_MONITOR_WORKER_INTERVAL
-  interval: 1s
+  interval: 1m
 
   # List of worker names to exclude from monitoring
   # Default: ["ua-auto-attach", "syslog"]
@@ -104,14 +104,14 @@ monitor_worker:
 # =============================================================================
 # Instead of using this config file, you can use environment variables:
 #
-# DEVOPIN_RESOURCE_ALERT_INTERVAL=30s
+# DEVOPIN_RESOURCE_ALERT_INTERVAL=1m
 # DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT=90
 # DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT=90
 # DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT=90
 # DEVOPIN_TELEGRAM_BOT_TOKEN=your_bot_token
 # DEVOPIN_TELEGRAM_CHAT_ID=your_chat_id
 # DEVOPIN_SERVER_HOST=your_hostname
-# DEVOPIN_MONITOR_WORKER_INTERVAL=1s
+# DEVOPIN_MONITOR_WORKER_INTERVAL=1m
 # DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS=worker1,worker2
 #
 # Environment variables take precedence over config file values.

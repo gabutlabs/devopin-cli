@@ -88,9 +88,9 @@ Create `/etc/devopin/config.yaml` (production) or `config.yaml` (development):
 # Resource Alert Settings
 # =============================================================================
 resource_alert:
-  # How often to check resource usage (s=seconds, m=minutes, h=hours)
-  # Default: 1s | Env: DEVOPIN_RESOURCE_ALERT_INTERVAL
-  interval: 30s
+  # How often to check resource usage (m=minutes, h=hours)
+  # Default: 1m | Env: DEVOPIN_RESOURCE_ALERT_INTERVAL
+  interval: 1m
 
   # Memory alert threshold (1-100%)
   # Default: 90 | Env: DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT
@@ -132,9 +132,9 @@ server:
 # Monitor Worker Settings
 # =============================================================================
 monitor_worker:
-  # Check interval for worker monitoring
-  # Default: 1s | Env: DEVOPIN_MONITOR_WORKER_INTERVAL
-  interval: 1s
+  # Check interval for worker monitoring (m=minutes, h=hours)
+  # Default: 1m | Env: DEVOPIN_MONITOR_WORKER_INTERVAL
+  interval: 1m
 
   # Workers to exclude from monitoring
   # Default: ["ua-auto-attach", "syslog"]
@@ -150,7 +150,7 @@ Alternatively, use environment variables (takes precedence over config file):
 
 ```bash
 # Resource Alert
-export DEVOPIN_RESOURCE_ALERT_INTERVAL="30s"
+export DEVOPIN_RESOURCE_ALERT_INTERVAL="1m"
 export DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT="90"
@@ -163,7 +163,7 @@ export DEVOPIN_TELEGRAM_CHAT_ID="your_chat_id"
 export DEVOPIN_SERVER_HOST="your_hostname"
 
 # Monitor Worker
-export DEVOPIN_MONITOR_WORKER_INTERVAL="1s"
+export DEVOPIN_MONITOR_WORKER_INTERVAL="1m"
 export DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS="worker1,worker2"
 ```
 

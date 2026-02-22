@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gabutlabs/devopin-cli/internal/config"
+	"log"
 	"strings"
 	"time"
 
@@ -67,7 +68,8 @@ func (n *Notification) FormatMonitorWorkerAlertMessage(hostName string, workers 
 func (n *Notification) SendTelegramAlert(message string) {
 	b, err := bot.New(n.cfg.Notify.Telegram.BotToken)
 	if err != nil {
-		panic(err)
+		log.Printf("[Telegram] failed to init bot: %v", err)
+		return
 	}
 
 	// Implementasi pengiriman notifikasi Telegram
@@ -77,6 +79,7 @@ func (n *Notification) SendTelegramAlert(message string) {
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
-		panic(err)
+		log.Printf("[Telegram] failed to send message: %v", err)
+		return
 	}
 }
