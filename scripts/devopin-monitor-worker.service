@@ -1,0 +1,27 @@
+[Unit]
+Description=Devopin CLI Worker Monitor
+Documentation=https://github.com/gabutlabs/devopin-cli
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/devopin monitor-worker
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=devopin-monitor-worker
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/devopin
+PrivateTmp=true
+
+# Environment
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target

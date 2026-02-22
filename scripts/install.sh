@@ -24,7 +24,8 @@ NC='\033[0m' # No Color
 # Configuration
 GITHUB_REPO="gabutlabs/devopin-cli"
 BINARY_NAME="devopin"
-SERVICE_NAME="devopin-resource-alert"
+SERVICE_NAME_RESOURCE="devopin-resource-alert"
+SERVICE_NAME_WORKER="devopin-monitor-worker"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/devopin"
 SYSTEMD_DIR="/etc/systemd/system"
