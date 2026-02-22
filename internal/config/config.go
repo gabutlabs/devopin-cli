@@ -13,6 +13,7 @@ type Config struct {
 	ResourceAlert ResourceAlertConfig
 	Notify        NotifyConfig
 	Server        ServerConfig
+	MonitorWorker MonitorWorkerConfig
 }
 
 type ResourceAlertConfig struct {
@@ -39,6 +40,11 @@ type ServerConfig struct {
 	Host string
 }
 
+type MonitorWorkerConfig struct {
+	Interval       time.Duration
+	ExcludeWorkers []string
+}
+
 func Load() (*Config, error) {
 	setDefaults()
 
@@ -57,6 +63,8 @@ func Load() (*Config, error) {
 	_ = viper.BindEnv("notify.telegram.bot_token", "DEVOPIN_TELEGRAM_BOT_TOKEN")
 	_ = viper.BindEnv("notify.telegram.chat_id", "DEVOPIN_TELEGRAM_CHAT_ID")
 	_ = viper.BindEnv("server.host", "DEVOPIN_SERVER_HOST")
+	_ = viper.BindEnv("monitor_worker.interval", "DEVOPIN_MONITOR_WORKER_INTERVAL")
+	_ = viper.BindEnv("monitor_worker.exclude_workers", "DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS")
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -100,6 +108,10 @@ func Load() (*Config, error) {
 		Server: ServerConfig{
 			Host: viper.GetString("server.host"),
 		},
+		MonitorWorker: MonitorWorkerConfig{
+			Interval:       viper.GetDuration("monitor_worker.interval"),
+			ExcludeWorkers: viper.GetStringSlice("monitor_worker.exclude_workers"),
+		},
 	}
 
 	if err := validate(cfg); err != nil {
@@ -124,7 +136,7 @@ func isDev() bool {
 }
 
 func setDefaults() {
-	viper.SetDefault("resource_alert.interval", "30s")
+	viper.SetDefault("resource_alert.interval", 1)
 	viper.SetDefault("resource_alert.memory.max_percent", 90)
 	viper.SetDefault("resource_alert.cpu.max_percent", 90)
 	viper.SetDefault("resource_alert.disk.max_percent", 90)
@@ -132,6 +144,9 @@ func setDefaults() {
 	viper.SetDefault("notify.telegram.chat_id", 0)
 	viper.SetDefault("notify.telegram.chat_id", 0)
 	viper.SetDefault("server.host", getHostName())
+	viper.SetDefault("monitor_worker.interval", 1)
+	viper.SetDefault("monitor_worker.exclude_workers", []string{"ua-auto-attach", "syslog"})
+
 }
 
 func getHostName() string {
@@ -164,6 +179,10 @@ func validate(cfg *Config) error {
 
 	if cfg.Notify.Telegram.ChatID == 0 {
 		return errors.New("notify.telegram.chat_id is required")
+	}
+
+	if cfg.MonitorWorker.Interval <= 0 {
+		return errors.New("monitor_worker.interval must be > 0")
 	}
 
 	return nil

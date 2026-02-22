@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gabutlabs/devopin-cli/internal/config"
 	"gabutlabs/devopin-cli/internal/notification"
+	"gabutlabs/devopin-cli/internal/utils"
 	"time"
 )
 
@@ -31,17 +32,10 @@ func checkResourceAlerts(cfg *config.Config, notif *notification.Notification) {
 }
 
 func RunResourceAlertRunner(ctx context.Context, cfg *config.Config) {
-	ticker := time.NewTicker(cfg.ResourceAlert.Interval * time.Minute)
-	defer ticker.Stop()
+	interval := cfg.ResourceAlert.Interval * time.Minute
 	notif := notification.NewNotification(ctx, cfg)
 	checkResourceAlerts(cfg, notif)
-	for {
-		select {
-		case <-ticker.C:
-			checkResourceAlerts(cfg, notif)
-		case <-ctx.Done():
-			fmt.Println("Resource alert runner stopped.")
-			return
-		}
-	}
+	utils.RunWithTicker(ctx, interval, func() {
+		checkResourceAlerts(cfg, notif)
+	})
 }

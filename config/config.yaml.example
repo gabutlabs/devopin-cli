@@ -1,52 +1,103 @@
 # Devopin CLI Configuration
 # =========================
-# 
+#
 # This is an example configuration file for Devopin CLI.
-# Copy this file to /etc/devopin/config.yaml (production) or 
+# Copy this file to /etc/devopin/config.yaml (production) or
 # keep it in the project root as config.yaml (development).
 #
 # Environment variables can also be used instead of this file.
 # All environment variables must be prefixed with DEVOPIN_
 # Example: DEVOPIN_TELEGRAM_BOT_TOKEN, DEVOPIN_RESOURCE_ALERT_INTERVAL
+#
+# Configuration Priority (highest to lowest):
+#   1. Environment variables (DEVOPIN_*)
+#   2. Config file values
+#   3. Default values
 
 # =============================================================================
 # Resource Alert Settings
 # =============================================================================
+# Controls system resource monitoring and alerting behavior
 resource_alert:
-  # How often to check resource usage (supports: s, m, h)
+  # How often to check resource usage
+  # Supported units: s (seconds), m (minutes), h (hours)
+  # Default: 1 (second)
+  # Environment: DEVOPIN_RESOURCE_ALERT_INTERVAL
   interval: 30s
-  
+
   # Memory alert threshold
   memory:
-    max_percent: 90  # Alert when memory usage exceeds 90%
-  
+    # Alert when memory usage exceeds this percentage
+    # Valid range: 1-100
+    # Default: 90
+    # Environment: DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT
+    max_percent: 90
+
   # CPU alert threshold
   cpu:
-    max_percent: 90  # Alert when CPU usage exceeds 90%
-  
+    # Alert when CPU usage exceeds this percentage
+    # Valid range: 1-100
+    # Default: 90
+    # Environment: DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT
+    max_percent: 90
+
   # Disk alert threshold
   disk:
-    max_percent: 90  # Alert when disk usage exceeds 90%
+    # Alert when disk usage exceeds this percentage
+    # Valid range: 1-100
+    # Default: 90
+    # Environment: DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT
+    max_percent: 90
 
 # =============================================================================
 # Notification Settings
 # =============================================================================
+# Configure how alerts are sent to Telegram
 notify:
   telegram:
     # Get your bot token from @BotFather on Telegram
+    # Required: Yes
+    # Default: "" (empty)
+    # Environment: DEVOPIN_TELEGRAM_BOT_TOKEN
     # Example: "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
     bot_token: ""
-    
+
     # Get your chat ID from @userinfobot on Telegram
+    # Required: Yes
+    # Default: 0
+    # Environment: DEVOPIN_TELEGRAM_CHAT_ID
     # Example: 123456789
     chat_id: 0
 
 # =============================================================================
 # Server Settings
 # =============================================================================
+# Server identification for alerts
 server:
-  # Hostname to report in alerts (leave empty to auto-detect)
+  # Hostname to report in alerts
+  # Leave empty to auto-detect from system
+  # Default: Auto-detected hostname
+  # Environment: DEVOPIN_SERVER_HOST
   host: ""
+
+# =============================================================================
+# Monitor Worker Settings
+# =============================================================================
+# Controls worker monitoring behavior
+monitor_worker:
+  # How often to check worker status
+  # Supported units: s (seconds), m (minutes), h (hours)
+  # Default: 1 (second)
+  # Environment: DEVOPIN_MONITOR_WORKER_INTERVAL
+  interval: 1s
+
+  # List of worker names to exclude from monitoring
+  # Default: ["ua-auto-attach", "syslog"]
+  # Environment: DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS
+  # Format: Comma-separated values (e.g., "worker1,worker2,worker3")
+  exclude_workers:
+    - ua-auto-attach
+    - syslog
 
 # =============================================================================
 # Environment Variable Equivalents
@@ -60,5 +111,16 @@ server:
 # DEVOPIN_TELEGRAM_BOT_TOKEN=your_bot_token
 # DEVOPIN_TELEGRAM_CHAT_ID=your_chat_id
 # DEVOPIN_SERVER_HOST=your_hostname
+# DEVOPIN_MONITOR_WORKER_INTERVAL=1s
+# DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS=worker1,worker2
 #
 # Environment variables take precedence over config file values.
+
+# =============================================================================
+# File Locations
+# =============================================================================
+# Development: ./config.yaml or ./config/config.yaml (project root)
+# Production:  /etc/devopin/config.yaml
+#
+# To enable development mode, create a .dev file in the project root
+# or set APP_ENV=development

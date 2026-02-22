@@ -40,6 +40,30 @@ func (n *Notification) FormatResourceAlertMessage(hostName string, resource stri
 	return message
 }
 
+func (n *Notification) FormatMonitorWorkerAlertMessage(hostName string, workers []string) string {
+	var workerList string
+
+	for _, w := range workers {
+		workerList += fmt.Sprintf("• <code>%s</code>\n", w)
+	}
+
+	message := fmt.Sprintf(
+		"<b>Worker Alert</b>\n\n"+
+			"<b>Server</b> : <code>%s</code>\n"+
+			"<b>Problematic Workers</b> : <code>%d</code>\n\n"+
+			"%s\n"+
+			"<b>Time</b> : <code>%s</code>\n",
+
+		strings.ToUpper(hostName),
+		len(workers),
+		workerList,
+		time.Now().Format("2006-01-02 15:04:05"),
+	)
+
+	return message
+
+}
+
 func (n *Notification) SendTelegramAlert(message string) {
 	b, err := bot.New(n.cfg.Notify.Telegram.BotToken)
 	if err != nil {

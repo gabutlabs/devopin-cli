@@ -73,22 +73,64 @@ sudo journalctl -u devopin-resource-alert -n 50
 Create `/etc/devopin/config.yaml` (production) or `config.yaml` (development):
 
 ```yaml
+# =============================================================================
+# Resource Alert Settings
+# =============================================================================
 resource_alert:
-  interval: 30s  # Check every 30 seconds
-  memory:
-    max_percent: 90  # Alert when memory > 90%
-  cpu:
-    max_percent: 90  # Alert when CPU > 90%
-  disk:
-    max_percent: 90  # Alert when disk > 90%
+  # How often to check resource usage (s=seconds, m=minutes, h=hours)
+  # Default: 1s | Env: DEVOPIN_RESOURCE_ALERT_INTERVAL
+  interval: 30s
 
+  # Memory alert threshold (1-100%)
+  # Default: 90 | Env: DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT
+  memory:
+    max_percent: 90
+
+  # CPU alert threshold (1-100%)
+  # Default: 90 | Env: DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT
+  cpu:
+    max_percent: 90
+
+  # Disk alert threshold (1-100%)
+  # Default: 90 | Env: DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT
+  disk:
+    max_percent: 90
+
+# =============================================================================
+# Notification Settings (Required)
+# =============================================================================
 notify:
   telegram:
-    bot_token: "YOUR_BOT_TOKEN"  # Get from @BotFather
-    chat_id: 123456789            # Get from @userinfobot
+    # Get from @BotFather on Telegram
+    # Env: DEVOPIN_TELEGRAM_BOT_TOKEN
+    bot_token: "YOUR_BOT_TOKEN"
 
+    # Get from @userinfobot on Telegram
+    # Env: DEVOPIN_TELEGRAM_CHAT_ID
+    chat_id: 123456789
+
+# =============================================================================
+# Server Settings
+# =============================================================================
 server:
-  host: ""  # Leave empty for auto-detect
+  # Leave empty for auto-detect hostname
+  # Env: DEVOPIN_SERVER_HOST
+  host: ""
+
+# =============================================================================
+# Monitor Worker Settings
+# =============================================================================
+monitor_worker:
+  # Check interval for worker monitoring
+  # Default: 1s | Env: DEVOPIN_MONITOR_WORKER_INTERVAL
+  interval: 1s
+
+  # Workers to exclude from monitoring
+  # Default: ["ua-auto-attach", "syslog"]
+  # Env: DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS (comma-separated)
+  exclude_workers:
+    - ua-auto-attach
+    - syslog
 ```
 
 ### Environment Variables
@@ -96,13 +138,37 @@ server:
 Alternatively, use environment variables (takes precedence over config file):
 
 ```bash
+# Resource Alert
+export DEVOPIN_RESOURCE_ALERT_INTERVAL="30s"
+export DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT="90"
+export DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT="90"
+export DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT="90"
+
+# Telegram Notification (Required)
 export DEVOPIN_TELEGRAM_BOT_TOKEN="your_bot_token"
 export DEVOPIN_TELEGRAM_CHAT_ID="your_chat_id"
-export DEVOPIN_RESOURCE_ALERT_INTERVAL="30s"
-export DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT="90"
-export DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT="90"
-export DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT="90"
+
+# Server
+export DEVOPIN_SERVER_HOST="your_hostname"
+
+# Monitor Worker
+export DEVOPIN_MONITOR_WORKER_INTERVAL="1s"
+export DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS="worker1,worker2"
 ```
+
+### Configuration Priority
+
+Configuration values are loaded in this order (highest priority first):
+
+1. **Environment variables** (`DEVOPIN_*`)
+2. **Config file** (`/etc/devopin/config.yaml` or `config.yaml`)
+3. **Default values** (built-in defaults)
+
+### Development vs Production Mode
+
+- **Development**: Place `config.yaml` in project root or create a `.dev` file
+- **Production**: Place config at `/etc/devopin/config.yaml`
+- Override mode with `APP_ENV=development` or `APP_ENV=production`
 
 ## Getting Telegram Credentials
 

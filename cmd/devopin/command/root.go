@@ -29,6 +29,7 @@ func Execute() {
 // Di sini kita mendaftarkan semua subcommand.
 func init() {
 	rootCmd.AddCommand(resourceAlertCmd)
+	rootCmd.AddCommand(workerMonitoringCmd)
 	rootCmd.AddCommand(uninstallCmd)
 	rootCmd.AddCommand(versionCmd)
 }
