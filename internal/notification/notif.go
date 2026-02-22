@@ -42,10 +42,10 @@ func (n *Notification) FormatResourceAlertMessage(hostName string, resource stri
 }
 
 func (n *Notification) FormatMonitorWorkerAlertMessage(hostName string, workers []string) string {
-	var workerList string
+	var workerList strings.Builder
 
 	for _, w := range workers {
-		workerList += fmt.Sprintf("• <code>%s</code>\n", w)
+		fmt.Fprintf(&workerList, "• <code>%s</code>\n", w)
 	}
 
 	message := fmt.Sprintf(
@@ -57,7 +57,7 @@ func (n *Notification) FormatMonitorWorkerAlertMessage(hostName string, workers 
 
 		strings.ToUpper(hostName),
 		len(workers),
-		workerList,
+		workerList.String(),
 		time.Now().Format("2006-01-02 15:04:05"),
 	)
 
