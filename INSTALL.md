@@ -82,7 +82,7 @@ sudo cp /path/to/config.yaml.example /etc/devopin/config.yaml
 sudo nano /etc/devopin/config.yaml
 ```
 
-Edit the configuration and add your Telegram credentials:
+Edit the configuration with your notification settings:
 
 ```yaml
 resource_alert:
@@ -94,10 +94,27 @@ resource_alert:
   disk:
     max_percent: 90
 
+# At least one notification channel must be enabled
 notify:
+  channels:
+    telegram: true   # Enable Telegram
+    email: false     # Enable Email (set to true if using email)
+
+  # Telegram configuration (required if channels.telegram is true)
   telegram:
     bot_token: "YOUR_BOT_TOKEN"  # Get from @BotFather
     chat_id: 123456789            # Get from @userinfobot
+
+  # Email configuration (required if channels.email is true)
+  email:
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    smtp_user: "your-email@gmail.com"
+    smtp_password: "your-app-password"
+    from_email: "alerts@example.com"
+    to_emails:
+      - admin@example.com
+      - dev@example.com
 
 server:
   host: ""  # Leave empty for auto-detect
@@ -108,12 +125,25 @@ server:
 Instead of config file, you can use environment variables:
 
 ```bash
-export DEVOPIN_TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN"
-export DEVOPIN_TELEGRAM_CHAT_ID="123456789"
+# Resource Alert
 export DEVOPIN_RESOURCE_ALERT_INTERVAL="30s"
 export DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT="90"
+
+# Telegram Notification
+export DEVOPIN_TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN"
+export DEVOPIN_TELEGRAM_CHAT_ID="123456789"
+export DEVOPIN_NOTIFY_CHANNELS_TELEGRAM="true"
+
+# Email Notification
+export DEVOPIN_EMAIL_SMTP_HOST="smtp.gmail.com"
+export DEVOPIN_EMAIL_SMTP_PORT="587"
+export DEVOPIN_EMAIL_SMTP_USER="your-email@gmail.com"
+export DEVOPIN_EMAIL_SMTP_PASSWORD="your-app-password"
+export DEVOPIN_EMAIL_FROM_EMAIL="alerts@example.com"
+export DEVOPIN_EMAIL_TO_EMAILS="admin@example.com,dev@example.com"
+export DEVOPIN_NOTIFY_CHANNELS_EMAIL="false"
 ```
 
 ### 3. Setup Systemd Service (Linux only)
@@ -215,8 +245,9 @@ sudo journalctl -u devopin-resource-alert -n 50 --no-pager
 
 Common issues:
 - Missing configuration file
-- Invalid Telegram bot token
-- Invalid Telegram chat ID
+- Invalid Telegram bot token or chat ID
+- Invalid email SMTP credentials
+- No notification channel enabled (at least one must be enabled)
 
 ### Check Configuration
 

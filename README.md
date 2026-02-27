@@ -4,13 +4,13 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gabutlabs/devopin-cli)](https://goreportcard.com/report/github.com/gabutlabs/devopin-cli)
 [![License](https://img.shields.io/github/license/gabutlabs/devopin-cli)](LICENSE)
 
-A command-line application for monitoring system resources (CPU, Memory, Disk) and sending real-time alerts via Telegram.
+A command-line application for monitoring system resources (CPU, Memory, Disk) and sending real-time alerts via Telegram and Email.
 
 ## Features
 
 - 🖥️ **Real-time Monitoring**: Monitor CPU, Memory, and Disk usage
-- 📱 **Telegram Alerts**: Get instant notifications when resource usage exceeds thresholds
-- ⚙️ **Configurable**: Customizable thresholds and check intervals
+- 📱 **Multi-Channel Alerts**: Get instant notifications via Telegram or Email when resource usage exceeds thresholds
+- ⚙️ **Configurable**: Customizable thresholds, check intervals, and notification channels
 - 🔧 **Systemd Integration**: Run as a background service on Linux
 - 🌐 **Cross-Platform**: Supports Linux (AMD64, ARM64, ARMv7)
 
@@ -108,9 +108,15 @@ resource_alert:
     max_percent: 90
 
 # =============================================================================
-# Notification Settings (Required)
+# Notification Settings (Required - at least one channel must be enabled)
 # =============================================================================
 notify:
+  # Enable/disable notification channels
+  channels:
+    telegram: true   # Enable Telegram notifications
+    email: false     # Enable Email notifications
+
+  # Telegram configuration (required if channels.telegram is true)
   telegram:
     # Get from @BotFather on Telegram
     # Env: DEVOPIN_TELEGRAM_BOT_TOKEN
@@ -119,6 +125,34 @@ notify:
     # Get from @userinfobot on Telegram
     # Env: DEVOPIN_TELEGRAM_CHAT_ID
     chat_id: 123456789
+
+  # Email configuration (required if channels.email is true)
+  email:
+    # SMTP server hostname
+    # Env: DEVOPIN_EMAIL_SMTP_HOST
+    smtp_host: "smtp.gmail.com"
+
+    # SMTP server port (587 for TLS, 465 for SSL)
+    # Env: DEVOPIN_EMAIL_SMTP_PORT
+    smtp_port: 587
+
+    # SMTP username
+    # Env: DEVOPIN_EMAIL_SMTP_USER
+    smtp_user: "your-email@gmail.com"
+
+    # SMTP password (use app password for Gmail)
+    # Env: DEVOPIN_EMAIL_SMTP_PASSWORD
+    smtp_password: "your-app-password"
+
+    # Sender email address
+    # Env: DEVOPIN_EMAIL_FROM_EMAIL
+    from_email: "alerts@example.com"
+
+    # List of recipient email addresses
+    # Env: DEVOPIN_EMAIL_TO_EMAILS (comma-separated)
+    to_emails:
+      - admin@example.com
+      - dev@example.com
 
 # =============================================================================
 # Server Settings
@@ -155,9 +189,19 @@ export DEVOPIN_RESOURCE_ALERT_MEMORY_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_CPU_MAX_PERCENT="90"
 export DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT="90"
 
-# Telegram Notification (Required)
+# Telegram Notification
 export DEVOPIN_TELEGRAM_BOT_TOKEN="your_bot_token"
 export DEVOPIN_TELEGRAM_CHAT_ID="your_chat_id"
+export DEVOPIN_NOTIFY_CHANNELS_TELEGRAM="true"
+
+# Email Notification
+export DEVOPIN_EMAIL_SMTP_HOST="smtp.gmail.com"
+export DEVOPIN_EMAIL_SMTP_PORT="587"
+export DEVOPIN_EMAIL_SMTP_USER="your-email@gmail.com"
+export DEVOPIN_EMAIL_SMTP_PASSWORD="your-app-password"
+export DEVOPIN_EMAIL_FROM_EMAIL="alerts@example.com"
+export DEVOPIN_EMAIL_TO_EMAILS="admin@example.com,dev@example.com"
+export DEVOPIN_NOTIFY_CHANNELS_EMAIL="false"
 
 # Server
 export DEVOPIN_SERVER_HOST="your_hostname"
@@ -181,7 +225,9 @@ Configuration values are loaded in this order (highest priority first):
 - **Production**: Place config at `/etc/devopin/config.yaml`
 - Override mode with `APP_ENV=development` or `APP_ENV=production`
 
-## Getting Telegram Credentials
+## Getting Notification Credentials
+
+### Telegram Setup
 
 1. **Get Bot Token**:
    - Open Telegram and search for `@BotFather`
@@ -192,6 +238,21 @@ Configuration values are loaded in this order (highest priority first):
    - Open Telegram and search for `@userinfobot`
    - Start a chat and send any message
    - Copy your chat ID
+
+### Email Setup (Gmail Example)
+
+1. **Enable 2-Factor Authentication** on your Google Account
+
+2. **Generate App Password**:
+   - Go to Google Account → Security → 2-Step Verification → App passwords
+   - Generate a new app password for "Mail"
+   - Copy the generated password
+
+3. **Configure SMTP Settings**:
+   - SMTP Host: `smtp.gmail.com`
+   - SMTP Port: `587` (TLS) or `465` (SSL)
+   - SMTP User: Your Gmail address
+   - SMTP Password: The app password you generated
 
 ## Commands
 
