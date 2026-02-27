@@ -52,22 +52,81 @@ resource_alert:
 # =============================================================================
 # Notification Settings
 # =============================================================================
-# Configure how alerts are sent to Telegram
+# Configure how alerts are sent (multi-channel support)
 notify:
+  # Enable/disable notification channels
+  channels:
+    # Enable Telegram notifications
+    # Default: true
+    # Environment: DEVOPIN_NOTIFY_CHANNELS_TELEGRAM
+    telegram: true
+
+    # Enable Email notifications
+    # Default: false
+    # Environment: DEVOPIN_NOTIFY_CHANNELS_EMAIL
+    email: false
+
+  # Telegram notification configuration
   telegram:
     # Get your bot token from @BotFather on Telegram
-    # Required: Yes
+    # Required: Yes (when telegram channel is enabled)
     # Default: "" (empty)
     # Environment: DEVOPIN_TELEGRAM_BOT_TOKEN
     # Example: "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
     bot_token: ""
 
     # Get your chat ID from @userinfobot on Telegram
-    # Required: Yes
+    # Required: Yes (when telegram channel is enabled)
     # Default: 0
     # Environment: DEVOPIN_TELEGRAM_CHAT_ID
     # Example: 123456789
     chat_id: 0
+
+  # Email notification configuration
+  email:
+    # SMTP server hostname
+    # Required: Yes (when email channel is enabled)
+    # Default: "" (empty)
+    # Environment: DEVOPIN_EMAIL_SMTP_HOST
+    # Example: "smtp.gmail.com"
+    smtp_host: ""
+
+    # SMTP server port
+    # Required: Yes (when email channel is enabled)
+    # Default: 587
+    # Environment: DEVOPIN_EMAIL_SMTP_PORT
+    # Example: 587 (TLS), 465 (SSL), 25 (plaintext)
+    smtp_port: 587
+
+    # SMTP username for authentication
+    # Required: Yes (when email channel is enabled)
+    # Default: "" (empty)
+    # Environment: DEVOPIN_EMAIL_SMTP_USER
+    # Example: "your-email@gmail.com"
+    smtp_user: ""
+
+    # SMTP password for authentication
+    # Required: Yes (when email channel is enabled)
+    # Default: "" (empty)
+    # Environment: DEVOPIN_EMAIL_SMTP_PASSWORD
+    # Example: "your-app-password"
+    smtp_password: ""
+
+    # Sender email address (from address)
+    # Required: Yes (when email channel is enabled)
+    # Default: "" (empty)
+    # Environment: DEVOPIN_EMAIL_FROM_EMAIL
+    # Example: "alerts@example.com"
+    from_email: ""
+
+    # List of recipient email addresses
+    # Required: Yes (when email channel is enabled)
+    # Default: [] (empty)
+    # Environment: DEVOPIN_EMAIL_TO_EMAILS
+    # Format: Comma-separated values (e.g., "admin@example.com,dev@example.com")
+    to_emails:
+      - admin@example.com
+      - dev@example.com
 
 # =============================================================================
 # Server Settings
@@ -110,6 +169,14 @@ monitor_worker:
 # DEVOPIN_RESOURCE_ALERT_DISK_MAX_PERCENT=90
 # DEVOPIN_TELEGRAM_BOT_TOKEN=your_bot_token
 # DEVOPIN_TELEGRAM_CHAT_ID=your_chat_id
+# DEVOPIN_EMAIL_SMTP_HOST=smtp.gmail.com
+# DEVOPIN_EMAIL_SMTP_PORT=587
+# DEVOPIN_EMAIL_SMTP_USER=your-email@gmail.com
+# DEVOPIN_EMAIL_SMTP_PASSWORD=your-app-password
+# DEVOPIN_EMAIL_FROM_EMAIL=alerts@example.com
+# DEVOPIN_EMAIL_TO_EMAILS=admin@example.com,dev@example.com
+# DEVOPIN_NOTIFY_CHANNELS_TELEGRAM=true
+# DEVOPIN_NOTIFY_CHANNELS_EMAIL=false
 # DEVOPIN_SERVER_HOST=your_hostname
 # DEVOPIN_MONITOR_WORKER_INTERVAL=1m
 # DEVOPIN_MONITOR_WORKER_EXCLUDE_WORKERS=worker1,worker2

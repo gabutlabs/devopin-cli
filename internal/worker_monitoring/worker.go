@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gabutlabs/devopin-cli/internal/config"
 	"gabutlabs/devopin-cli/internal/notification"
+	"log"
 	"strings"
 
 	"github.com/coreos/go-systemd/v22/dbus"
@@ -71,8 +72,12 @@ func (wm *WorkerMonitoring) Monitoring() {
 			inactiveWorkers = append(inactiveWorkers, w.Name)
 		}
 	}
-	msg := notif.FormatMonitorWorkerAlertMessage(wm.cfg.Server.Host, inactiveWorkers)
-	notif.SendTelegramAlert(msg)
+	if len(inactiveWorkers) > 0 {
+		msg := notif.FormatMonitorWorkerAlertMessage(wm.cfg.Server.Host, inactiveWorkers)
+		notif.SendNotif(msg, fmt.Sprintf("[Worker Alert] Inactive workers on %s", wm.cfg.Server.Host))
+	} else {
+		log.Printf("All monitored workers are active on %s", wm.cfg.Server.Host)
+	}
 }
 func (wm *WorkerMonitoring) contains(list []string, item string) bool {
 	for _, v := range list {

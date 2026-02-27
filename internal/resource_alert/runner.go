@@ -19,16 +19,18 @@ func checkResourceAlerts(cfg *config.Config, notif *notification.Notification) {
 	if collect.CPU.UsagePercent > float64(cfg.ResourceAlert.CPU.MaxPercent) {
 		fmt.Printf("CPU usage alert! Current usage: %.2f%%\n", collect.CPU.UsagePercent)
 		message = notif.FormatResourceAlertMessage(cfg.Server.Host, "CPU", collect.CPU.UsagePercent, cfg.ResourceAlert.CPU.MaxPercent)
+		notif.SendNotif(message, fmt.Sprintf("[Resource Alert] CPU usage on %s", cfg.Server.Host))
 	}
 	if collect.Memory.UsedPercent > float64(cfg.ResourceAlert.Memory.MaxPercent) {
 		fmt.Printf("Memory usage alert! Current usage: %.2f%%\n", collect.Memory.UsedPercent)
 		message = notif.FormatResourceAlertMessage(cfg.Server.Host, "Memory", collect.Memory.UsedPercent, cfg.ResourceAlert.Memory.MaxPercent)
+		notif.SendNotif(message, fmt.Sprintf("[Resource Alert] Memory usage on %s", cfg.Server.Host))
 	}
 	if float64(collect.Disk.UsedPercent) > float64(cfg.ResourceAlert.Disk.MaxPercent) {
 		fmt.Printf("Disk usage alert! Current usage: %.2f%%\n", float64((collect.Disk.Used/collect.Memory.Total)*100))
 		message = notif.FormatResourceAlertMessage(cfg.Server.Host, "Disk", float64((collect.Disk.Used/collect.Memory.Total)*100), cfg.ResourceAlert.Disk.MaxPercent)
+		notif.SendNotif(message, fmt.Sprintf("[Resource Alert] Disk usage on %s", cfg.Server.Host))
 	}
-	notif.SendTelegramAlert(message)
 }
 
 func RunResourceAlertRunner(ctx context.Context, cfg *config.Config) {

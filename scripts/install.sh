@@ -303,9 +303,23 @@ resource_alert:
 
 # Notification Settings
 notify:
+  # Enable/disable notification channels
+  channels:
+    telegram: true   # Enable Telegram notifications
+    email: false     # Enable Email notifications
+
   telegram:
     bot_token: ""  # Your Telegram Bot Token (get from @BotFather)
     chat_id: 0     # Your Telegram Chat ID (get from @userinfobot)
+
+  email:
+    smtp_host: ""        # SMTP server (e.g., smtp.gmail.com)
+    smtp_port: 587       # SMTP port (587 for TLS, 465 for SSL)
+    smtp_user: ""        # SMTP username
+    smtp_password: ""    # SMTP password (use app password for Gmail)
+    from_email: ""       # Sender email address
+    to_emails:           # List of recipient emails
+      - admin@example.com
 
 # Server Settings
 server:
